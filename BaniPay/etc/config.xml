@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Store/etc/config.xsd">
+    <default>
+        <payment>
+                <banipay>
+                <active>1</active>
+                <title>BaniPay</title>
+                <order_status>pending_payment</order_status>
+                <instructions>Instruction.</instructions>
+                <payment_action>true</payment_action>
+                <model>BaniPayPaymentGateway3\BaniPay\Model\BaniPay</model>
+                <group>offline</group>
+            </banipay>
+            <!-- payment-config -->
+        </payment>
+    </default>
+</config>
