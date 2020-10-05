@@ -2,43 +2,54 @@
 
 namespace BaniPayPaymentGateway3\BaniPay\Model;
 
+// class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
+// class BaniPay extends AbstractCarrier implements CarrierInterface
+// class BaniPay extends \Magento\Payment\Model\Method\Cc {
+class BaniPay extends \Magento\Payment\Model\Method\Cc {
 
+    // protected $_code = 'banipay';
 
-/**
- * Pay In Store payment method model
- */
-class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
-{
-
-    /**
-     * Payment code
-     *
-     * @var string
-     */
-    protected $_code = 'banipay';
-
-    /**
-     * Availability option
-     *
-     * @var bool
-     */
-    protected $_isOffline = true;
-
-
-    protected $_logger;
-
-
-    public function __construct(
-        \Vendor\Extension\Logger\Logger $logger
-    ) {
-        $this->_logger = $logger;
-        $this->_logger->info('diebiandev');
-    }
+    const CODE = 'banipay';
+    protected $_code = self::CODE;
+    protected $_canAuthorize = true;
+    protected $_canCapture = true;
+    protected $_isGateway = true;
+    protected $_countryFactory;
+    protected $cart = null;
     
-    public function execute()
-    {
-        $this->_logger->info('diebiandev2');
-    }
-  
+    public function __construct( \Magento\Framework\Model\Context $context,
+    \Magento\Framework\Registry $registry, 
+    \Magento\Framework\Api\ExtensionAttributesFactory $extensionFactory,
+    \Magento\Framework\Api\AttributeValueFactory $customAttributeFactory,
+    \Magento\Payment\Helper\Data $paymentData, 
+    \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig, 
+    \Magento\Payment\Model\Method\Logger $logger, 
+    \Magento\Framework\Module\ModuleListInterface $moduleList,
+    \Magento\Framework\Stdlib\DateTime\TimezoneInterface $localeDate,
+    \Magento\Directory\Model\CountryFactory $countryFactory,
+    \Magento\Checkout\Model\Cart $cart,
+    array $data = array() 
+   ) {
+      parent::__construct( $context, $registry, $extensionFactory, $customAttributeFactory, $paymentData, $scopeConfig, $logger, $moduleList, $localeDate, null, null, $data );
+        $this->cart = $cart; $this->_countryFactory = $countryFactory;
+   }
 
+    /* public function capture(\Magento\Payment\Model\InfoInterface $payment, $amount) {
+        //todo add functionality later
+        // error_log(print_r("VULCANBO VULCANBO", true));
+        //$this->_logger->debug('vulcanbo vulcanbo vulcanbo '); 
+        // $this->debug('vulcanbo vulcanbo vulcanbo ');
+        // Mage::log('vulcanbo vulcanbo vulcanbo capture', null, 'debug.log', true);
+        // error_log('vulcanbo vulcanbo vulcanbo capture');
+
+    } */
+ 
+    /* public function authorize(\Magento\Payment\Model\InfoInterface $payment, $amount) {
+        // Mage::log('vulcanbo vulcanbo vulcanbo authorize', null, 'debug.log', true);
+    } */
+
+  /*   public function assignData($data)
+    {
+        // Mage::log('vulcanbo vulcanbo vulcanbo assignData', null, 'debug.log', true);
+    } */
 }
