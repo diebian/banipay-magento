@@ -21,8 +21,17 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
 
     protected $_logger;
 
+    public function __construct(
+        \BaniPayPaymentGateway3\BaniPay\Logger\Logger $logger
+    ) {
+        // Mage::log('model from contrusct', null, 'system.log', true);
+        $this->_logger = $logger;
+        // $this->_logger->info('from construct model vulcanbo');
+    }
+
     public function getTest() {
 
+        Mage::log('model from test vulcanbo', null, 'system.log', true);
         return 'from model banipay'; 
     }
 
