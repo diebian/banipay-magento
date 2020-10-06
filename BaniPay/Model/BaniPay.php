@@ -21,4 +21,9 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
 
     protected $_logger;
 
+    public function getTest() {
+
+        return 'from model banipay'; 
+    }
+
 }
