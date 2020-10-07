@@ -41,11 +41,11 @@ class PlaceOrder extends Action
     public function execute()
     {
 
-        $id = $this->checkoutSession->getLastOrderId();
-        $order = $this->orderFactory->create()->load($id);
+        // $id = $this->checkoutSession->getLastOrderId();
+        // $order = $this->orderFactory->create()->load($id);
 
         // $this->_logger->info('vulcanbo vulcanbo vulcanbo');
-        Mage::log('controller from execute vulcanbo', null, 'banipay.log', true);
+        /* Mage::log('controller from execute vulcanbo', null, 'banipay.log', true);
         Mage::log('controller from execute vulcanbo', null, 'system.log', true);
 
 
@@ -56,8 +56,9 @@ class PlaceOrder extends Action
             )));
 
             return;
-        }
+        } */
 
-        return $this->banipay->getTest();
+        // return $this->banipay->getTest();
+        return true;
     }
 }
