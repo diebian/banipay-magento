@@ -34,8 +34,8 @@ class PlaceOrder extends Action
         $this->checkoutSession = $checkoutSession;
         // $this->logger = $logger;
         // $this->_logger = $_logger;
-        Mage::log('controller from construct vulcanbo', null, 'banipay.log', true);
-        Mage::log('controller from construct vulcanbo', null, 'system.log', true);
+        // Mage::log('controller from construct vulcanbo', null, 'banipay.log', true);
+        // Mage::log('controller from construct vulcanbo', null, 'system.log', true);
     }
 
     public function execute()
@@ -59,6 +59,6 @@ class PlaceOrder extends Action
         } */
 
         // return $this->banipay->getTest();
-        return true;
+        return exit;
     }
 }

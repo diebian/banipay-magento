@@ -8,6 +8,8 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
 use \Psr\Log\LoggerInterface;
 
+
+
 class Redirect implements ObserverInterface
 { 
 
@@ -15,47 +17,47 @@ class Redirect implements ObserverInterface
     protected $_responseFactory;
     protected $_url;
     protected $_logger;
+    
 
     public function __construct(\Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\App\ResponseFactory $responseFactory,
         \Magento\Framework\UrlInterface $url,
         // \Magento\Payment\Model\Method\Logger $logger
         \Psr\Log\LoggerInterface $logger
+        
     ) {
         $this->messageManager = $messageManager;
         $this->_responseFactory = $responseFactory;
         $this->_url = $url;
         $this->_logger = $logger;
+
+
     }
 
-
-
-    /**
-    * @param EventObserver $observer
-    * @return $this
-    * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-    */
-    /* public function execute(EventObserver $observer, LoggerInterface $logger) {
-        $order = $observer->getEvent()->getOrder();
-
-        $logger->info($order->getData());
-        $logger->debug($order->getData());
-
-        var_dump($order->getData());
-        exit;
-    } */
-
-
     public function execute(EventObserver $observer) {
-        $order = $observer->getEvent()->getOrder();
+    // public function execute (\Magento\Framework\Event\Observer $observer) {
+        
 
-        $this->_logger->info('info ORDER');
-        $this->_logger->info(print_r($order->getData(), true));
-        $this->_logger->debug('debug ORDER');
-        $this->_logger->debug(print_r($order->getData(), true));
-        $this->_logger->debug('diebiandev diebiandev');
+     
+        $this->_logger->info('from OBSERVER root: info ORDER');
+        // $this->_logger->debug(var_dump($order , true));
+        $this->_logger->debug('from OBSERVER root: debug ORDER');
+        // $this->_logger->debug(print_r($order->getState(), true));
+        $this->_logger->debug('from OBSERVER root: diebiandev diebiandev');
+        
+        $this->_logger->debug(print_r($observer->getEvent()->debug(), true));
 
-        //var_dump($order->getData());
+        $result          = $observer->getEvent()->getResult();
+        $method_instance = $observer->getEvent()->getMethodInstance();
+        // $this->_logger->debug(print_r($observer->getEvent(), true));
+
+        // $event = $observer->getEvent();
+        // $this->redirect->redirect($event->getResponse(), 'https://diebian.dev');
+
+        // var_dump($order);
+        // return true;
+
+
         exit;
     }
     
