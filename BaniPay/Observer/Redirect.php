@@ -10,8 +10,6 @@ use \Psr\Log\LoggerInterface;
 
 use BaniPayPaymentGateway3\BaniPay\Model\BaniPay;
 
-use Magento\Framework\Controller\ResultFactory;
-
 use Magento\Framework\Encryption\EncryptorInterface as Encryptor;
 
 class Redirect implements ObserverInterface
@@ -27,8 +25,8 @@ class Redirect implements ObserverInterface
     public $details = array();
     public $transaction = array();
 
-    const REDIRECT_URL = 'https://diebian.dev';
-    protected $resultRedirect;   
+    public $url = 'https://diebian.dev';
+    protected $_httpClientFactory;
 
     public function __construct(\Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\App\ResponseFactory $responseFactory,
@@ -39,7 +37,7 @@ class Redirect implements ObserverInterface
         BaniPay $banipay,
         Encryptor $encryptor,
 
-        \Magento\Framework\Controller\ResultFactory $result
+        \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory
         
     ) {
         $this->messageManager = $messageManager;
@@ -49,8 +47,9 @@ class Redirect implements ObserverInterface
 
         $this->banipay = $banipay;
 
-        $this->resultRedirect = $result;
         $this->encryptor = $encryptor;
+
+        $this->_httpClientFactory   = $httpClientFactory;
 
         $this->affiliate_code_demo = '141581ae-fb1f-4cfb-b21e-040a8851c265';
 
@@ -69,8 +68,6 @@ class Redirect implements ObserverInterface
         $order = $observer->getEvent()->getOrder();
         
         $encrypt = md5($this->encryptor->encrypt(json_encode($debug, true)));
-        $this->banipay->createCookie('externalCode', $encrypt);
-        // $this->_logger->debug($encrypt);
 
         $increment_id = $order->getincrement_id();
         $items = $order->getAllVisibleItems();
@@ -91,8 +88,8 @@ class Redirect implements ObserverInterface
         foreach($items as $item){
             $data = array(
                 "concept"         => $item->getName(),
-                "productImageUrl" => "ID: ".$item->getStoreId(),
-                "productImageUrl_" => 12,
+                // "productImageUrl" => "ID: ".$item->getStoreId(),
+                "productImageUrl" => "https://i.blogs.es/322095/google-home-wifi/1366_2000.jpg",
                 "quantity"        => $item->getQtyOrdered(),
                 "unitPrice"       => $item->getPrice(),
             );
@@ -110,7 +107,7 @@ class Redirect implements ObserverInterface
             "country"            => $address['country_id'], 
             "firstName"          => $address['firstname'], 
             "identifierCode"     => $increment_id, 
-            "identifierName"     => $address['email'], 
+            "identifierName"     => $address['lastname'], 
             "lastName"           => $address['lastname'], 
             "locality"           => $address['city'], 
             "email"              => $address['email'], 
@@ -130,21 +127,84 @@ class Redirect implements ObserverInterface
             "successUrl"      => $this->success_url,
         );
 
-        $affiliate = $this->banipay->getAffiliate( $this->affiliate_code );
 
-        if ( ($this->affiliate_code_demo != $this->affiliate_code ) && isset( $affiliate->withInvoice ) ) {
-            $data["withInvoice"] = $affiliate->withInvoice;
+
+        if( (isset($_COOKIE["externalCode"])) && ($_COOKIE["externalCode"] == $encrypt) ) {
+            
+            // cart empry, redirect to $_COOKIE["url_transaction"]
+            return;
+
+        } else {
+
+            // Cookie cart hash
+            $this->banipay->createCookie('externalCode', $encrypt);
+            
+            // Start class Transaction
+            $affiliate = $this->banipay->getAffiliate( $this->affiliate_code );
+
+            if ( ($this->affiliate_code_demo != $this->affiliate_code ) && isset( $affiliate->withInvoice ) ) {
+                $data["withInvoice"] = $affiliate->withInvoice;
+            }
+
+            // Registration a transaction
+            $this->_logger->debug('Data: '.print_r($data, true));
+            $this->_logger->debug('Params: '.print_r($params, true));
+            $transaction = $this->banipay->register($data, $params);
+            $this->_logger->debug('Transaction___: '.($transaction));
+
+
+            $client = $this->_httpClientFactory->create();
+            $client->setUri('https://banipay.me:8443/api/payments/transaction');
+            // $client->getUri()->setPort($port);
+            $client->setConfig(['timeout' => 300]);
+            $client->setHeaders(['Content-Type: application/json']);
+            $client->setMethod(\Zend_Http_Client::POST);
+            $client->setRawData($transaction);
+
+            try {
+                $responseBody = $client->request()->getBody();
+
+                $this->_logger->debug('POST : '.print_r($responseBody, true));
+            } catch (\Exception $e) {
+                $this->_logger->debug('ERROR : '.print_r($e->getMessage(), true));
+            }
+
+
+            return ; die();
+
+            if( isset($transaction) && !isset($transaction->status) ){
+
+                $this->banipay->createCookie('externalCode', $transaction->externalCode);
+                $this->banipay->createCookie('transaction_generated', $transaction->transactionGenerated);
+                $this->banipay->createCookie('url_transaction', $transaction->urlTransaction);
+                $this->banipay->createCookie('payment_id', $transaction->paymentId);
+                
+                // cart empty
+
+                // redirect to banipay url transaction
+                /* return array(
+                    'result' => 'success',
+                    'redirect' => $transaction->urlTransaction
+                ); */
+
+            } else {
+                // wc_add_notice(  'El Código de Afiliado de BaniPay no es correcto.', 'error' );
+                return;
+            }
         }
+
+
+
+        return;
+
+
 
         $this->_logger->debug('AFFILIATE: '.print_r($affiliate , true));        
         // $this->_logger->debug('DETAILS: '.print_r($this->details , true));
         $this->_logger->debug('DATA: '.print_r($data , true));
 
-        // model test get data
-        $this->_logger->debug(print_r($this->banipay->getTest(), true));
-
-        exit;
-        return;
+        return; // stop
+        exit; // next
 
     }
     

@@ -19,22 +19,23 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
      */
     protected $_isOffline = true;
 
-    protected $_logger;
-
 
     public $transaction = array();
 
-    private $const = array();
+    public $const = array();
 
-    private $payload = array();
+    public $payload = array();
 
-    private $transactionGenerated = array();
-    private $transactionStatus = array();
-    private $affiliate = array();
+    public $transactionGenerated = array();
+    public $transactionStatus = array();
+    public $affiliate = array();
 
-    private $urlTransaction = "https://banipay.me:8443/api/payments/transaction";
-    private $urlTransactionInfo = "https://banipay.me:8443/api/payments/info";
-    private $urlAffiliate = "https://banipay.me:8443/api/affiliates";
+    public $urlTransaction = "https://banipay.me:8443/api/payments/transaction";
+    public $urlTransactionInfo = "https://banipay.me:8443/api/payments/info";
+    public $urlAffiliate = "https://banipay.me:8443/api/affiliates";
+
+    // array keys required
+    public $keys = array("withInvoice", "externalCode", "paymentDescription", "details");
 
 
     public function getTest(){
@@ -51,18 +52,22 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
             "affiliateCode"   => $params['affiliateCode'],
             "expireMinutes"   => $params['expireMinutes'],
             "failedUrl"       => $params['failedUrl'],
-            "successUrl"      => $params['successUrl'],
-            // "notificationUrl" => $params['notificationUrl']
+            "successUrl"      => $params['successUrl']
         );
+        // $this->_logger->debug('METHOD: '.print_r($this->const, true));
+        // Mage::log('your debug message', null, 'debug.log');
+        error_log("Failed to connect to database!", 0);
+
         if( self::verify() ) {
             $data = self::toComplete();
+            // return $data;
             return self::send();
         } else {
             return "Incorrectly formatted data";
         }
     }
 
-    private function verify() {
+    public function verify() {
         if (is_array($this->transaction)) {
             foreach ($this->keys as $key => $value) {
                 if ( !array_key_exists($value, $this->transaction) ) return false;
@@ -73,7 +78,7 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
         } 
     }
 
-    private function toComplete(){
+    public function toComplete(){
         $this->payload = $this->const + $this->transaction;
         return $this->payload;
     }
@@ -82,9 +87,10 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
         return json_encode($this->payload);
     }
 
-    private function send(){
+    public function send(){
         $ch = curl_init($this->urlTransaction);
         $payload = self::getPayload();
+        return $payload;
 
         // Attach encoded JSON string to the POST fields
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
