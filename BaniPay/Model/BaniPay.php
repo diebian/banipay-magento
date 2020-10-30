@@ -41,6 +41,10 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
         return 'message from model banipay';
     }
 
+    public function getDataconfig($field){
+        return $this->getConfigData($field);
+    }
+
     public function register ($data, $params){
         $this->transaction = $data;
         $this->const = array(
@@ -131,6 +135,10 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
 
         return $this->affiliate;
 
+    }
+
+    public function createCookie ($name, $data) {
+        setcookie($name, $data, time()+30*24*60*60);
     }
 
 }

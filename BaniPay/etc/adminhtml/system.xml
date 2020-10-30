@@ -2,33 +2,48 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../Config/etc/system_file.xsd">
     <system>
         <section id="payment">
-            <group id="banipay" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="banipay" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>BaniPay</label>
                 <field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
-                    <label>Enabled</label>
+                    <label>Habilitado</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Title</label>
+                <field id="title" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Nombre de método de pago</label>
                 </field>
-                <field id="order_status" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+
+
+                <field id="affiliate_code" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Código de afiliado</label>
+                </field>
+                <field id="expire_minutes" translate="label" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Minutos para expirar transacción</label>
+                </field>
+                <field id="failed_url" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>URL Falla</label>
+                </field>
+                <field id="success_url" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>URL pago completado</label>
+                </field>
+
+                <field id="order_status" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>New Order Status</label>
                     <source_model>BaniPayPaymentGateway3\BaniPay\Model\Config\Source\Order\Status\Pendingpayment</source_model>
                 </field>
               
-                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                <!-- <field id="allowspecific" translate="label" type="allowspecific" sortOrder="8" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Payment from Applicable Countries</label>
                     <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
-                </field>
-                <field id="specificcountry" translate="label" type="multiselect" sortOrder="41" showInDefault="1" showInWebsite="1" showInStore="0">
+                </field> -->
+                <!-- <field id="specificcountry" translate="label" type="multiselect" sortOrder="9" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Payment from Specific Countries</label>
                     <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
                     <can_be_empty>1</can_be_empty>
-                </field>
-                <field id="instructions" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                </field> -->
+                <!-- <field id="instructions" translate="label" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Instructions</label>
-                </field>
-                <field id="sort_order" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                </field> -->
+                <field id="sort_order" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Sort Order</label>
                     <frontend_class>validate-number</frontend_class>
                 </field>
