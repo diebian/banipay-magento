@@ -11,6 +11,7 @@ use \Psr\Log\LoggerInterface;
 use BaniPayPaymentGateway3\BaniPay\Model\BaniPay;
 
 use Magento\Framework\Encryption\EncryptorInterface as Encryptor;
+use Magento\Framework\Controller\ResultFactory;
 
 class Redirect implements ObserverInterface
 { 
@@ -28,6 +29,9 @@ class Redirect implements ObserverInterface
     public $url = 'https://diebian.dev';
     protected $_httpClientFactory;
 
+    const REDIRECT_URL = 'https://diebian.dev';
+    protected $redirect;
+
     public function __construct(\Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Framework\App\ResponseFactory $responseFactory,
         \Magento\Framework\UrlInterface $url,
@@ -37,7 +41,8 @@ class Redirect implements ObserverInterface
         BaniPay $banipay,
         Encryptor $encryptor,
 
-        \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory
+        \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
+        \Magento\Framework\App\Response\RedirectInterface $redirect
         
     ) {
         $this->messageManager = $messageManager;
@@ -50,6 +55,7 @@ class Redirect implements ObserverInterface
         $this->encryptor = $encryptor;
 
         $this->_httpClientFactory   = $httpClientFactory;
+        $this->redirect = $redirect;
 
         $this->affiliate_code_demo = '141581ae-fb1f-4cfb-b21e-040a8851c265';
 
@@ -62,7 +68,14 @@ class Redirect implements ObserverInterface
     }
 
     public function execute(EventObserver $observer) {
+
+        // $observer->getEvent()->getFront()->getResponse()->setRedirect('https://diebian.dev');
+        // header('Location: https://diebian.dev', true, 301); exit();
+        // exit();
         
+        // return $this->resultRedirectFactory->create()->setUrl('https://diebian.dev');
+
+
         // All items cart
         $debug = $observer->getEvent()->debug();        
         $order = $observer->getEvent()->getOrder();
@@ -80,7 +93,7 @@ class Redirect implements ObserverInterface
             return;
         }
         
-        // $this->_logger->debug('ADDRESSES_: '.print_r($address, true));
+        $this->_logger->debug('ADDRESSES_: '.print_r($address, true));
         // $this->_logger->debug('DEBUG: '.print_r($debug, true));
         // $this->_logger->debug('METHOD: '.print_r($method, true));
 
@@ -103,7 +116,7 @@ class Redirect implements ObserverInterface
             "paymentDescription" => $this->title,
             
             "address"            => $address['street'], 
-            "administrativeArea" => $address['region'], 
+            "administrativeArea" => $address['region_id'], 
             "country"            => $address['country_id'], 
             "firstName"          => $address['firstname'], 
             "identifierCode"     => $increment_id, 
