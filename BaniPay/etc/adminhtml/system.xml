@@ -22,9 +22,9 @@
                 <field id="failed_url" translate="label" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>URL Falla</label>
                 </field>
-                <field id="success_url" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                <!-- <field id="success_url" translate="label" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>URL pago completado</label>
-                </field>
+                </field> -->
 
                 <field id="order_status" translate="label" type="select" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>New Order Status</label>

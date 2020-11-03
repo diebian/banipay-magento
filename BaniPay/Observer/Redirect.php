@@ -30,6 +30,7 @@ class Redirect implements ObserverInterface
     protected $cookieManager;
     protected $cookieMetadataFactory;
     protected $messageManager;
+    protected $_storeManager;
 
     public function __construct(
         \Magento\Framework\App\ResponseFactory $responseFactory,
@@ -38,6 +39,7 @@ class Redirect implements ObserverInterface
         \Magento\Theme\Block\Html\Header\Logo $logo,
 
         \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
 
         BaniPay $banipay,
         Custom $custom,
@@ -60,11 +62,11 @@ class Redirect implements ObserverInterface
         $this->affiliate_code = $this->banipay->getDataconfig('affiliate_code');
         $this->expire_minutes = $this->banipay->getDataconfig('expire_minutes');
         $this->failed_url = $this->banipay->getDataconfig('failed_url');
-        $this->success_url = $this->banipay->getDataconfig('success_url');
 
         $this->cookieManager = $cookieManager;
         $this->cookieMetadataFactory = $cookieMetadataFactory;
-        $this->messageManager = $messageManager;      
+        $this->messageManager = $messageManager;    
+        $this->_storeManager = $storeManager;
         
     }
 
@@ -77,6 +79,9 @@ class Redirect implements ObserverInterface
         $encrypt = md5($this->encryptor->encrypt(json_encode($debug, true)));
 
         $increment_id = $order->getincrement_id();
+
+        $orderId = $order->getId();
+
         $items = $order->getAllVisibleItems();
         $address = $order->getShippingAddress()->getData();
         
@@ -88,6 +93,8 @@ class Redirect implements ObserverInterface
         }
         
         // $this->_logger->debug('DEBUG: '.print_r($debug, true));
+        $this->_logger->debug('increment_id: '.print_r($increment_id, true));
+        $this->_logger->debug('orderId: '.print_r($orderId, true));
 
         // Products loading
         foreach($items as $item){
@@ -131,7 +138,7 @@ class Redirect implements ObserverInterface
             "affiliateCode"   => $this->affiliate_code,
             "expireMinutes"   => $this->expire_minutes,
             "failedUrl"       => $this->failed_url,
-            "successUrl"      => $this->success_url,
+            "successUrl"      => $this->_storeManager->getStore()->getBaseUrl().'sales/order/history/',
         );
 
 
@@ -156,7 +163,7 @@ class Redirect implements ObserverInterface
 
             // Registration a transaction
             $this->_logger->debug('Data: '.print_r($data, true));
-            // $this->_logger->debug('Params: '.print_r($params, true));
+            $this->_logger->debug('Params: '.print_r($params, true));
             $transaction = $this->banipay->register($data, $params);
             $this->_logger->debug('Transaction: '.(print_r($transaction, true)));
             // $this->_logger->debug('externalCode externalCode: '.($transaction->externalCode));
@@ -172,6 +179,7 @@ class Redirect implements ObserverInterface
                 $this->custom->set('payment_id', $transaction->paymentId);
 
                 $this->custom->set('increment_id', $increment_id);
+                $this->custom->set('order_id', $orderId );
                 
                     // cart empty
 

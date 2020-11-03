@@ -56,18 +56,19 @@ class Index extends Action
     }
 
 
-    
+    /* 
 
     protected function _getCheckout()
     {
         return $this->_objectManager->get('Magento\Checkout\Model\Session');
-    }
+    } */
 
 
     public function execute()
     {
         $this->banipay->getTest();
-        $id = $this->checkoutSession->getLastOrderId();
+        
+       /*  $id = $this->checkoutSession->getLastOrderId();
 
         $order = $this->orderFactory->create()->load($id);
 
@@ -84,6 +85,6 @@ class Index extends Action
         $quote->setIsActive(1);
         $this->quoteRepository->save($quote);
 
-        $this->getResponse()->setBody(json_encode($this->coingatePayment->getCoinGateRequest($order)));
+        $this->getResponse()->setBody(json_encode($this->coingatePayment->getCoinGateRequest($order))); */
     }
 }
