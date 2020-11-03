@@ -58,7 +58,7 @@ class PlaceOrder extends Action
             return;
         } */
 
-        // return $this->banipay->getTest();
+        return $this->banipay->getTest();
         return exit;
     }
 }

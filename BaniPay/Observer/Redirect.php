@@ -9,72 +9,66 @@ use Magento\Framework\Message\ManagerInterface;
 use \Psr\Log\LoggerInterface;
 
 use BaniPayPaymentGateway3\BaniPay\Model\BaniPay;
+use BaniPayPaymentGateway3\BaniPay\Cookie\Custom;
 
 use Magento\Framework\Encryption\EncryptorInterface as Encryptor;
-use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\CookieManagerInterface;
 
 class Redirect implements ObserverInterface
 { 
 
-    protected $messageManager;
-    protected $_responseFactory;
-    protected $_url;
     protected $_logger;
+    protected $_logo; 
 
     protected $banipay;
+    protected $custom;
 
     public $details = array();
     public $transaction = array();
+    
+    protected $cookieManager;
+    protected $cookieMetadataFactory;
+    protected $messageManager;
 
-    public $url = 'https://diebian.dev';
-    protected $_httpClientFactory;
-
-    const REDIRECT_URL = 'https://diebian.dev';
-    protected $redirect;
-
-    public function __construct(\Magento\Framework\Message\ManagerInterface $messageManager,
+    public function __construct(
         \Magento\Framework\App\ResponseFactory $responseFactory,
         \Magento\Framework\UrlInterface $url,
-        // \Magento\Payment\Model\Method\Logger $logger
         \Psr\Log\LoggerInterface $logger,
+        \Magento\Theme\Block\Html\Header\Logo $logo,
+
+        \Magento\Framework\Message\ManagerInterface $messageManager,
 
         BaniPay $banipay,
+        Custom $custom,
         Encryptor $encryptor,
 
-        \Magento\Framework\HTTP\ZendClientFactory $httpClientFactory,
-        \Magento\Framework\App\Response\RedirectInterface $redirect
+        CookieManagerInterface $cookieManager,
+        CookieMetadataFactory $cookieMetadataFactory
+        
         
     ) {
-        $this->messageManager = $messageManager;
-        $this->_responseFactory = $responseFactory;
-        $this->_url = $url;
         $this->_logger = $logger;
+        $this->_logo = $logo;
 
         $this->banipay = $banipay;
-
+        $this->custom = $custom;
         $this->encryptor = $encryptor;
 
-        $this->_httpClientFactory   = $httpClientFactory;
-        $this->redirect = $redirect;
-
         $this->affiliate_code_demo = '141581ae-fb1f-4cfb-b21e-040a8851c265';
-
         $this->title = $this->banipay->getDataconfig('title');
         $this->affiliate_code = $this->banipay->getDataconfig('affiliate_code');
         $this->expire_minutes = $this->banipay->getDataconfig('expire_minutes');
         $this->failed_url = $this->banipay->getDataconfig('failed_url');
         $this->success_url = $this->banipay->getDataconfig('success_url');
 
+        $this->cookieManager = $cookieManager;
+        $this->cookieMetadataFactory = $cookieMetadataFactory;
+        $this->messageManager = $messageManager;        
+
     }
 
     public function execute(EventObserver $observer) {
-
-        // $observer->getEvent()->getFront()->getResponse()->setRedirect('https://diebian.dev');
-        // header('Location: https://diebian.dev', true, 301); exit();
-        // exit();
-        
-        // return $this->resultRedirectFactory->create()->setUrl('https://diebian.dev');
-
 
         // All items cart
         $debug = $observer->getEvent()->debug();        
@@ -93,21 +87,21 @@ class Redirect implements ObserverInterface
             return;
         }
         
-        $this->_logger->debug('ADDRESSES_: '.print_r($address, true));
-        // $this->_logger->debug('DEBUG: '.print_r($debug, true));
-        // $this->_logger->debug('METHOD: '.print_r($method, true));
+        $this->_logger->debug('DEBUG: '.print_r($debug, true));
 
         // Products loading
         foreach($items as $item){
             $data = array(
                 "concept"         => $item->getName(),
-                // "productImageUrl" => "ID: ".$item->getStoreId(),
-                "productImageUrl" => "https://i.blogs.es/322095/google-home-wifi/1366_2000.jpg",
+                "productImageUrl" =>  null, // $item->getProductId(),
+                // "productImageUrl" => "https://i.blogs.es/322095/google-home-wifi/1366_2000.jpg",
                 "quantity"        => $item->getQtyOrdered(),
                 "unitPrice"       => $item->getPrice(),
             );
             array_push($this->details, $data);   
         }
+
+        $this->add_shipping_method( $order->getShippingAmount(), $order->getShippingDescription() );
 
         // Products services to register
         $data = array(
@@ -142,15 +136,16 @@ class Redirect implements ObserverInterface
 
 
 
-        if( (isset($_COOKIE["externalCode"])) && ($_COOKIE["externalCode"] == $encrypt) ) {
+        if( (isset($_COOKIE["external_code"])) && ($_COOKIE["external_code"] == $encrypt) ) {
             
             // cart empry, redirect to $_COOKIE["url_transaction"]
             return;
 
+
         } else {
 
             // Cookie cart hash
-            $this->banipay->createCookie('externalCode', $encrypt);
+            
             
             // Start class Transaction
             $affiliate = $this->banipay->getAffiliate( $this->affiliate_code );
@@ -161,64 +156,54 @@ class Redirect implements ObserverInterface
 
             // Registration a transaction
             $this->_logger->debug('Data: '.print_r($data, true));
-            $this->_logger->debug('Params: '.print_r($params, true));
+            // $this->_logger->debug('Params: '.print_r($params, true));
             $transaction = $this->banipay->register($data, $params);
-            $this->_logger->debug('Transaction___: '.($transaction));
+            $this->_logger->debug('Transaction: '.(print_r($transaction, true)));
+            // $this->_logger->debug('externalCode externalCode: '.($transaction->externalCode));
 
 
-            $client = $this->_httpClientFactory->create();
-            $client->setUri('https://banipay.me:8443/api/payments/transaction');
-            // $client->getUri()->setPort($port);
-            $client->setConfig(['timeout' => 300]);
-            $client->setHeaders(['Content-Type: application/json']);
-            $client->setMethod(\Zend_Http_Client::POST);
-            $client->setRawData($transaction);
 
-            try {
-                $responseBody = $client->request()->getBody();
-
-                $this->_logger->debug('POST : '.print_r($responseBody, true));
-            } catch (\Exception $e) {
-                $this->_logger->debug('ERROR : '.print_r($e->getMessage(), true));
-            }
-
-
-            return ; die();
 
             if( isset($transaction) && !isset($transaction->status) ){
+                    
+                $this->custom->set('external_code', $transaction->externalCode);
+                $this->custom->set('transaction_generated', $transaction->transactionGenerated);
+                $this->custom->set('url_transaction', $transaction->urlTransaction);
+                $this->custom->set('payment_id', $transaction->paymentId);
 
-                $this->banipay->createCookie('externalCode', $transaction->externalCode);
-                $this->banipay->createCookie('transaction_generated', $transaction->transactionGenerated);
-                $this->banipay->createCookie('url_transaction', $transaction->urlTransaction);
-                $this->banipay->createCookie('payment_id', $transaction->paymentId);
+                $this->custom->set('increment_id', $increment_id);
                 
-                // cart empty
+                    // cart empty
 
-                // redirect to banipay url transaction
-                /* return array(
-                    'result' => 'success',
-                    'redirect' => $transaction->urlTransaction
-                ); */
-
-            } else {
-                // wc_add_notice(  'El Código de Afiliado de BaniPay no es correcto.', 'error' );
-                return;
-            }
+                } else {
+                    $this->messageManager->addError(__("El Código de Afiliado de BaniPay no es correcto."));
+                    exit;
+                }
         }
 
-
-
-        return;
-
-
-
-        $this->_logger->debug('AFFILIATE: '.print_r($affiliate , true));        
-        // $this->_logger->debug('DETAILS: '.print_r($this->details , true));
-        $this->_logger->debug('DATA: '.print_r($data , true));
-
-        return; // stop
+        return; // success
         exit; // next
 
     }
+
+    function add_shipping_method( $shipping_total, $shipping_name) {
+
+        if ($shipping_total > 0) {
+            $data = array(
+                "concept"         => $shipping_name,
+                "productImageUrl" => $this->getLogoSrc(),
+                "quantity"        => 1,
+                "unitPrice"       => $shipping_total,
+            );
+            array_push($this->details, $data);   
+        }
+        return;
+
+    }
+
+    public function getLogoSrc() {    
+        return $this->_logo->getLogoSrc();
+    }
+
     
 }

@@ -34,13 +34,11 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
     public $urlTransactionInfo = "https://banipay.me:8443/api/payments/info";
     public $urlAffiliate = "https://banipay.me:8443/api/affiliates";
 
+    protected $_url;
+    protected $_responseFactory;
+
     // array keys required
     public $keys = array("withInvoice", "externalCode", "paymentDescription", "details");
-
-
-    public function getTest(){
-        return 'message from model banipay';
-    }
 
     public function getDataconfig($field){
         return $this->getConfigData($field);
@@ -90,7 +88,6 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
     public function send(){
         $ch = curl_init($this->urlTransaction);
         $payload = self::getPayload();
-        return $payload;
 
         // Attach encoded JSON string to the POST fields
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
@@ -143,8 +140,8 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
 
     }
 
-    public function createCookie ($name, $data) {
-        setcookie($name, $data, time()+30*24*60*60);
+    public function getTest (){
+        $this->_logger->debug('getTestgetTestgetTestgetTest: ');
     }
 
 }
