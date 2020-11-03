@@ -141,7 +141,7 @@ class BaniPay extends \Magento\Payment\Model\Method\AbstractMethod
     }
 
     public function getTest (){
-        $this->_logger->debug('getTestgetTestgetTestgetTest: ');
+        $this->_logger->debug( 'from model bp');
     }
 
 }

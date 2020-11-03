@@ -64,8 +64,8 @@ class Redirect implements ObserverInterface
 
         $this->cookieManager = $cookieManager;
         $this->cookieMetadataFactory = $cookieMetadataFactory;
-        $this->messageManager = $messageManager;        
-
+        $this->messageManager = $messageManager;      
+        
     }
 
     public function execute(EventObserver $observer) {
@@ -87,7 +87,7 @@ class Redirect implements ObserverInterface
             return;
         }
         
-        $this->_logger->debug('DEBUG: '.print_r($debug, true));
+        // $this->_logger->debug('DEBUG: '.print_r($debug, true));
 
         // Products loading
         foreach($items as $item){
@@ -181,8 +181,11 @@ class Redirect implements ObserverInterface
                 }
         }
 
+
+        // $this->banipay->getTest();
+       
         return; // success
-        exit; // next
+        exit; // return
 
     }
 
