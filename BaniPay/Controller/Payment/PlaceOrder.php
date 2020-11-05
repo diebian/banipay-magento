@@ -12,47 +12,46 @@ use \Psr\Log\LoggerInterface;
 class Index extends Action
 {
     protected $banipay;
+    protected $_logger;
 
-    protected $orderFactory;
-    protected $coingatePayment;
+    /* protected $orderFactory;
     protected $checkoutSession;
     protected $scopeConfig;
+    */
 
     /**
      * @var \Magento\Framework\Event\ManagerInterface
      */
-    protected $_eventManager;
+    //protected $_eventManager;
 
     /**
      * @var \Magento\Quote\Api\CartRepositoryInterface
      */
-    protected $quoteRepository;
+    //protected $quoteRepository;
 
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
-        BaniPay $banipay,
+        BaniPay $banipay
 
-        \Magento\Framework\Event\ManagerInterface $eventManager,
+        /* \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Quote\Api\CartRepositoryInterface $quoteRepository,
         Context $context,
         OrderFactory $orderFactory,
         Session $checkoutSession,
-        CoinGatePayment $coingatePayment,
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig */
        
     )
-    {
+    {   
 
         $this->banipay = $banipay;
         $this->_logger = $logger;
 
         parent::__construct($context);
-        $this->quoteRepository = $quoteRepository;
+        /* $this->quoteRepository = $quoteRepository;
         $this->_eventManager = $eventManager;
         $this->orderFactory = $orderFactory;
-        $this->coingatePayment = $coingatePayment;
         $this->checkoutSession = $checkoutSession;
-        $this->scopeConfig = $scopeConfig;
+        $this->scopeConfig = $scopeConfig; */
     }
 
 
@@ -66,7 +65,8 @@ class Index extends Action
 
     public function execute()
     {
-        $this->banipay->getTest();
+        $this->_logger->debug( 'from controller');
+        // $this->banipay->getTest();
         
        /*  $id = $this->checkoutSession->getLastOrderId();
 

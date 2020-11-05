@@ -33,8 +33,6 @@ class Redirect implements ObserverInterface
     protected $_storeManager;
 
     public function __construct(
-        \Magento\Framework\App\ResponseFactory $responseFactory,
-        \Magento\Framework\UrlInterface $url,
         \Psr\Log\LoggerInterface $logger,
         \Magento\Theme\Block\Html\Header\Logo $logo,
 
@@ -46,8 +44,7 @@ class Redirect implements ObserverInterface
         Encryptor $encryptor,
 
         CookieManagerInterface $cookieManager,
-        CookieMetadataFactory $cookieMetadataFactory
-        
+        CookieMetadataFactory $cookieMetadataFactory        
         
     ) {
         $this->_logger = $logger;
@@ -67,7 +64,7 @@ class Redirect implements ObserverInterface
         $this->cookieMetadataFactory = $cookieMetadataFactory;
         $this->messageManager = $messageManager;    
         $this->_storeManager = $storeManager;
-        
+       
     }
 
     public function execute(EventObserver $observer) {
@@ -163,7 +160,7 @@ class Redirect implements ObserverInterface
 
             // Registration a transaction
             $this->_logger->debug('Data: '.print_r($data, true));
-            $this->_logger->debug('Params: '.print_r($params, true));
+            // $this->_logger->debug('Params: '.print_r($params, true));
             $transaction = $this->banipay->register($data, $params);
             $this->_logger->debug('Transaction: '.(print_r($transaction, true)));
             // $this->_logger->debug('externalCode externalCode: '.($transaction->externalCode));
@@ -189,8 +186,7 @@ class Redirect implements ObserverInterface
                 }
         }
 
-
-        // $this->banipay->getTest();
+        $this->banipay->getTest();
        
         return; // success
         exit; // return
